@@ -6,8 +6,12 @@
 #include <string_view>
 #include <cstdint>
 #include <algorithm>
+#include <cstdlib>
+
 #include "../include/Observer.hpp"
 #include "../include/GameText.hpp"
+#include "../include/httpRequest.hpp"
+
 
 void loadRecourse(sf::Texture &t, std::string file) {
     if(!t.loadFromFile(file)){
@@ -22,6 +26,9 @@ void loadRecourse(sf::Font &t, std::string file) {
 
 int main()
 {
+    // fetching pokemon names
+    //std::string test{PokeApi::getPokemon(PokeApi::generatePokemonID()).first};
+
     //background
     sf::Texture oldPaper;
     loadRecourse(oldPaper,"./textures/oldPaper.png");
@@ -82,6 +89,10 @@ int main()
     pub.subscribe(game_text3.getString(),&game_text3);
     pub.subscribe(game_text4.getString(),&game_text4);
     pub.subscribe(game_text5.getString(),&game_text5);
+
+    GameText game_test{test, font, 30};
+    game_test.setPosition({50,350});
+    pub.subscribe(game_test.getString(),&game_test);
 
 
     while (window.isOpen())

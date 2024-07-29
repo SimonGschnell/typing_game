@@ -10,10 +10,18 @@ FetchContent_Declare(SFML
     GIT_TAG 2.6.x)
 FetchContent_MakeAvailable(SFML)
 
-add_executable(main src/main.cpp src/GameText.cpp)
-target_link_libraries(main PRIVATE sfml-graphics)
-target_compile_features(main PRIVATE cxx_std_17)
+# Add the path to the curlpp header files
+include_directories(/usr/local/include)
 
+# Add the path to the curlpp libraries
+link_directories(/usr/local/lib)
+
+# Find the nlohmann_json package
+find_package(nlohmann_json REQUIRED)
+
+add_executable(main src/main.cpp src/GameText.cpp src/httpRequest.cpp)
+target_link_libraries(main PRIVATE sfml-graphics curlpp curl nlohmann_json::nlohmann_json)
+target_compile_features(main PRIVATE cxx_std_17)
 if(WIN32)
     add_custom_command(
         TARGET main

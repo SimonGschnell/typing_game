@@ -31,6 +31,9 @@ sf::String GameText::getString(){
     return m_string;
 }
 
+int GameText::getRow(){
+    return m_row;
+}
 
 void GameText::update(const sf::String character)
 {
@@ -56,6 +59,18 @@ GameText::GameText(sf::String value, const sf::Font& f, unsigned int characterSi
     m_vertices           (sf::Triangles),
     m_bounds             (),
     m_geometryNeedUpdate (true){}
+
+GameText::GameText(sf::String value, const sf::Font& f, unsigned int characterSize, int row):
+    m_string             (value),
+    m_font               (&f),
+    m_characterSize      (characterSize),
+    m_letterSpacingFactor(1.f),
+    m_lineSpacingFactor  (1.f),
+    m_fillColor          (255, 255, 255),
+    m_vertices           (sf::Triangles),
+    m_bounds             (),
+    m_geometryNeedUpdate (true),
+    m_row                (row){}
 
 void GameText::draw(sf::RenderTarget& target, sf::RenderStates states) const{
     ensureGeometryUpdate();

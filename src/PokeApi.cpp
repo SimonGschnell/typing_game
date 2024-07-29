@@ -1,4 +1,4 @@
-#include "../include/httpRequest.hpp"
+#include "../include/PokeApi.hpp"
 
 namespace PokeApi{
     std::pair<std::string,int> getPokemon(int id){

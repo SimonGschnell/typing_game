@@ -9,6 +9,7 @@
 
 class GameText : public sf::Drawable, public sf::Transformable, public Subscriber{
 private:
+    int                         m_row{1};
     const sf::Font*             m_font{};
     sf::String                  m_string{};
     unsigned int                m_characterSize{};
@@ -28,13 +29,19 @@ private:
     void ensureGeometryUpdate() const;
 
 public:
-    GameText(sf::String, const sf::Font&, unsigned int);
+    GameText(sf::String, const sf::Font&, unsigned int characterSize);
+
+    GameText(sf::String, const sf::Font&, unsigned int characterSize, int row);
+
+    GameText() = default;
 
     virtual void update(const sf::String);
 
     bool isCompleted();
 
     sf::String getString();
+
+    int getRow();
 
 };
 

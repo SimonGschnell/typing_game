@@ -10,7 +10,11 @@
 
 #include "../include/Observer.hpp"
 #include "../include/GameText.hpp"
-#include "../include/httpRequest.hpp"
+#include "../include/PokeApi.hpp"
+
+// constants
+const int DEFAULT_CHARACTER_SIZE = 30;
+const int MAX_NR_ROWS = 5;
 
 
 void loadRecourse(sf::Texture &t, std::string file) {
@@ -24,10 +28,18 @@ void loadRecourse(sf::Font &t, std::string file) {
     }
 }
 
+float generateRow(int nrRow, const sf::Window &window){
+    auto [width, height] = window.getSize();
+    float offset = height / MAX_NR_ROWS+1;
+    std::cout << "height: " << height << " - offset: "<< offset << std::endl;
+    return (offset*nrRow)-DEFAULT_CHARACTER_SIZE;
+}
+
 int main()
 {
     // fetching pokemon names
     //std::string test{PokeApi::getPokemon(PokeApi::generatePokemonID()).first};
+    std::string test{"asdfdsa"};
 
     //background
     sf::Texture oldPaper;
@@ -60,6 +72,7 @@ int main()
 
 
     auto window = sf::RenderWindow{ { 300, 300 }, "Typing Game", sf::Style::Fullscreen | sf::Style::Resize | sf::Style::Close};
+
     window.setFramerateLimit(144);
 
     // enlarge the sprite to fit the window size
@@ -72,27 +85,36 @@ int main()
     int index{0};
 
     sf::Clock clock;
-    GameText game_text1{"bird", font, 30};
-    game_text1.setPosition({50,50});
-    GameText game_text2{"house", font, 30};
-    game_text2.setPosition({50,100});
-    GameText game_text3{"bath", font, 30};
-    game_text3.setPosition({50,150});
-    GameText game_text4{"pizza", font, 30};
-    game_text4.setPosition({50,200});
-    GameText game_text5{"pineapple", font, 30};
-    game_text5.setPosition({50,250});
+    Publisher pub;
+    std::vector<GameText> game_text_array(10);
+    for(int i=0; i < 6; i++){
+        game_text_array[i]= GameText{PokeApi::getPokemon(PokeApi::generatePokemonID()).first, font, DEFAULT_CHARACTER_SIZE,i+1};
+        game_text_array[i].setPosition({50,generateRow(game_text_array[i].getRow(),window)});
+        pub.subscribe(game_text_array[i].getString(),&game_text_array[i]);
+    }
+
+    /* GameText game_text1{"bird", font, DEFAULT_CHARACTER_SIZE,1};
+    game_text1.setPosition({50,generateRow(game_text1.getRow(),window)});
+    GameText game_text2{"house", font, DEFAULT_CHARACTER_SIZE,2};
+    game_text2.setPosition({50,generateRow(game_text2.getRow(),window)});
+    GameText game_text3{"bath", font, DEFAULT_CHARACTER_SIZE,3};
+    game_text3.setPosition({50,generateRow(game_text3.getRow(),window)});
+    GameText game_text4{"pineapple", font, DEFAULT_CHARACTER_SIZE,4};
+    game_text4.setPosition({50,generateRow(game_text4.getRow(),window)});
+    GameText game_text5{"pizza", font, DEFAULT_CHARACTER_SIZE,5};
+    game_text5.setPosition({50,generateRow(game_text5.getRow(),window)});
+
 
     Publisher pub;
     pub.subscribe(game_text1.getString(),&game_text1);
     pub.subscribe(game_text2.getString(),&game_text2);
     pub.subscribe(game_text3.getString(),&game_text3);
     pub.subscribe(game_text4.getString(),&game_text4);
-    pub.subscribe(game_text5.getString(),&game_text5);
+    pub.subscribe(game_text5.getString(),&game_text5); */
 
-    GameText game_test{test, font, 30};
-    game_test.setPosition({50,350});
-    pub.subscribe(game_test.getString(),&game_test);
+    // GameText game_test{test, font, 30};
+    // game_test.setPosition({50,350});
+    // pub.subscribe(game_test.getString(),&game_test);
 
 
     while (window.isOpen())
@@ -102,10 +124,16 @@ int main()
         for (auto event = sf::Event{}; window.pollEvent(event);)
         {
             switch(event.type){
-                case sf::Event::Closed: window.close(); break;
-                case sf::Event::TextEntered :
-                    sf::String C{event.text.unicode};
-                    pub.notify_subscribers(C);
+                case sf::Event::Closed:
+                    window.close(); break;
+                case sf::Event::TextEntered:
+                    pub.notify_subscribers(event.text.unicode);
+                    break;
+                case sf::Event::Resized:
+                    for(auto pair : pub.getSubscribers()){
+                        GameText* t {static_cast<GameText*>(pair.second)};
+                        t->setPosition(t->getPosition().x,generateRow(t->getRow(),window));
+                    }
                     break;
             }
 
